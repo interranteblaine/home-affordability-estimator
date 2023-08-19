@@ -1,0 +1,113 @@
+:root {
+    --background-color: #282c34;
+    --accent-color: rgba(255, 215, 0, 1);
+    --text-color: #e8e9eb;
+    --text-background-color:  #202428;
+    --input-bg-color: #282c34;
+    --input-border-color: #555;
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.calculator, .documentation {
+    padding: 2rem;
+    background-color: var(--text-background-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--box-shadow-color);
+    margin-bottom: 2rem;
+    max-width: 800px;
+    width: 100%;
+}
+
+.calculator, .documentation, input, button {
+    box-sizing: border-box;
+}
+
+h2, h3 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+label, input, button, p {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+input {
+    padding: 0.5rem;
+    border: 1px solid var(--input-border-color);
+    border-radius: 5px;
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+button {
+    padding: 0.5rem 0;
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+button:focus {
+    outline: none;
+}
+
+.calculation {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.equation-left-side {
+    margin-right: 5px;
+}
+
+.equation-right-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.equation-numerator, .equation-denomenator {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.equation-denomenator {
+    border-top: 1px solid var(--input-border-color);
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 90%;  /* Reducing the font size to 90% of the original */
+        line-height: 1.4;  /* Adjusting the line height for readability */
+    }
+
+    input, button {
+        padding: 0.75rem;  /* Increasing the padding for touch targets */
+    }
+}

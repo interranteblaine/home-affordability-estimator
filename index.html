@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Affordability Estimato</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="calculator">
+        <h2>Home Affordability Estimator</h2>
+        
+        <form id="calculator-form">
+            <label for="income">Monthly Income:</label>
+            <input type="number" id="income" placeholder="Enter your monthly income">
+    
+            <label for="rate">Interest Rate (Annual in %):</label>
+            <input type="number" id="rate" placeholder="Enter annual interest rate">
+    
+            <label for="ratio">Housing Expense Ratio (%):</label>
+            <input type="number" id="ratio" value="28" step="0.01">
+    
+            <button onclick="event.preventDefault(); calculate();">Calculate Home Price</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+    <div class="documentation">
+        <h2>Documentation</h2>
+        
+        <p><strong>Purpose</strong>: This tool estimates the maximum home price you might afford based on your monthly income and current interest rates. It uses a standard guideline from the mortgage lending industry which determines how much of your income should be dedicated to housing costs.</p>
+    
+        <h3>Assumptions:</h3>
+        <ol>
+            <li><strong>Housing Expense Ratio</strong> (Front-End Ratio): This represents the portion of your monthly income that's recommended for housing costs (including mortgage payments, property taxes, and homeowner's insurance). The default is set at 28%, but this can be adjusted based on your comfort level and other financial obligations.</li>
+            <li><strong>Loan Duration</strong>: This calculation assumes a standard 30-year fixed-rate mortgage.</li>
+            <li><strong>Interest Rate</strong>: The rate you enter should be the annual interest rate for a 30-year fixed mortgage.</li>
+        </ol>
+    
+        <h3>Formula and Method:</h3>
+        <p>The tool uses the formula for a monthly mortgage payment on a fixed-rate mortgage, which is:</p>
+        <div class="calculation">
+            <div class="equation-left-side">M = P × </div>
+            <div class="equation-right-side">
+                <div class="equation-numerator">r(1 + r)<sup>n</sup></div>
+                <div class="equation-denomenator">(1 + r)<sup>n</sup> - 1</div>
+            </div>
+        </div>
+        <p>Where:</p>
+        <ul>
+            <li><strong>M</strong> is the monthly mortgage payment.</li>
+            <li><strong>P</strong> is the loan principal (i.e., home price).</li>
+            <li><strong>r</strong> is the monthly interest rate (annual rate divided by 12).</li>
+            <li><strong>n</strong> is the total number of payments (360 for a 30-year loan).</li>
+        </ul>
+        <p>Using the Newton-Raphson method, a numerical approximation technique, the calculator iteratively adjusts the home price <strong>P</strong> until the computed monthly payment <strong>M</strong> aligns with the product of your income and the chosen housing expense ratio.</p>
+    
+        <h3>Notes:</h3>
+        <ol>
+            <li>This is a general guideline and should not replace professional financial advice. Your actual affordability may vary based on various factors like credit score, other debts, down payment amount, and more.</li>
+            <li>The actual home price you can afford may be affected by additional factors not considered in this calculation, such as property taxes, homeowner association (HOA) fees, insurance premiums, and other homeowner-related costs.</li>
+        </ol>
+    
+        <p>Consult with a financial advisor or mortgage broker to get a detailed understanding of your home buying potential.</p>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
