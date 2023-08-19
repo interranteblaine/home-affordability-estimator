@@ -25,6 +25,21 @@
         
         <div id="result"></div>
     </div>
+    <div class="chart-container">
+        <canvas id="incomeChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="rateChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="ratioChart"></canvas>
+    </div>
+    <!-- <div>
+        <ul>
+            <li>A steeper derivative curve indicates greater sensitivity. This means that small changes in that parameter will have a larger effect on the estimated home price.</li>
+            <li>Flat sections of a derivative curve indicate insensitivity, where changes in that parameter have little effect on the estimated home price.</li>
+        </ul>
+    </div>     -->
     <div class="documentation">
         <h2>Documentation</h2>
         
@@ -63,7 +78,7 @@
     
         <p>Consult with a financial advisor or mortgage broker to get a detailed understanding of your home buying potential.</p>
     </div>
-    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
