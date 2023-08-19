@@ -105,9 +105,18 @@ button:focus {
     body {
         font-size: 90%;  /* Reducing the font size to 90% of the original */
         line-height: 1.4;  /* Adjusting the line height for readability */
+        padding: 1rem 0.5rem; /* Adjusted padding */
+    }
+
+    .calculator, .documentation {
+        padding: 1rem; /* Reduced padding */
     }
 
     input, button {
         padding: 0.75rem;  /* Increasing the padding for touch targets */
+    }
+
+    input {
+        font-size: 16px;  /* Added font size to prevent zoom */
     }
 }
