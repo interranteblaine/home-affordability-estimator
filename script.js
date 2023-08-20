@@ -1,6 +1,8 @@
 const INCOME = "income";
 const RATE = "rate";
 const RATIO = "ratio";
+const STEPS = 21; // 21 * 21 * 21 = 9,261 data points
+const VARIANCE = 0.2; // range +/- user provided values
 
 let incomeChartInstance;
 let rateChartInstance;
@@ -11,6 +13,8 @@ function calculate() {
   const rateElem = document.getElementById(RATE);
   const ratioElem = document.getElementById(RATIO);
   const resultElem = document.getElementById("result");
+  const spinner = document.getElementById("loadingSpinner");
+  const calculateButton = document.getElementById("calculateButton");
 
   const income = parseFloat(incomeElem.value);
   const annualRate = parseFloat(rateElem.value) / 100;
@@ -21,73 +25,68 @@ function calculate() {
     return;
   }
 
-  const estimate = calculateHomePrice(income, annualRate, ratio);
-  const result = "Estimated Home Price: " + formatEstimate(estimate);
-  resultElem.innerText = result;
+  calculateButton.style.display = "none";
+  spinner.style.display = "block";
 
-  const incomeCanvasElem = document.getElementById("incomeChart");
-  const incomeSensitivities = generateSensitivityData(income, 0.2, 10);
-  const incomeDerivatives = incomeSensitivities.map((incomeData) =>
-    calculateDerivative(incomeData, annualRate, ratio, INCOME)
-  );
+  // Use setTimeout to defer computation, allowing the event loop to update the UI before proceeding.
+  setTimeout(() => {
+    const estimate = calculateHomePrice(income, annualRate, ratio);
+    const result = "Estimated Home Price: " + formatEstimate(estimate);
+    resultElem.innerText = result;
 
-  const rateCanvasElem = document.getElementById("rateChart");
-  const annualRateSensitivities = generateSensitivityData(annualRate, 0.2, 10);
-  const annualRateDerivatives = annualRateSensitivities.map((annualRateData) =>
-    calculateDerivative(income, annualRateData, ratio, RATE)
-  );
+    const incomeCanvasElem = document.getElementById("incomeChart");
+    const incomeSensitivities = generateSensitivityData(
+      income,
+      VARIANCE,
+      STEPS
+    );
 
-  const ratioCanvasElem = document.getElementById("ratioChart");
-  const ratioSensitivities = generateSensitivityData(ratio, 0.2, 10);
-  const ratioDerivatives = ratioSensitivities.map((ratioData) =>
-    calculateDerivative(income, annualRate, ratioData, RATIO)
-  );
+    const rateCanvasElem = document.getElementById("rateChart");
+    const annualRateSensitivities = generateSensitivityData(
+      annualRate,
+      VARIANCE,
+      STEPS
+    );
 
-  console.log(
-    JSON.stringify({
-      enteredIncome: income,
-      enteredAnnualRate: annualRate,
-      enteredRatio: ratio,
-      incomeSensitivities: incomeSensitivities,
-      incomeDerivatives: incomeDerivatives,
-      annualRateSensitivities: annualRateSensitivities,
-      annualRateDerivatives: annualRateDerivatives,
-      ratioSensitivities: ratioSensitivities,
-      ratioDerivatives: ratioDerivatives,
-    })
-  );
+    const ratioCanvasElem = document.getElementById("ratioChart");
+    const ratioSensitivities = generateSensitivityData(ratio, VARIANCE, STEPS);
 
-  if (incomeChartInstance) {
-    incomeChartInstance.destroy();
-  }
+    const data = generateDataSet(
+      incomeSensitivities,
+      annualRateSensitivities,
+      ratioSensitivities
+    );
 
-  incomeChartInstance = renderLineChart(incomeCanvasElem, {
-    label: "Income Sensitivity (Derivative)",
-    labels: incomeSensitivities.map((value) => `$${value.toFixed(2)}`),
-    datapoints: incomeDerivatives,
-  });
+    if (incomeChartInstance) {
+      incomeChartInstance.destroy();
+    }
 
-  if (rateChartInstance) {
-    rateChartInstance.destroy();
-  }
+    incomeChartInstance = renderScatterPlot(incomeCanvasElem, {
+      label: "Income Sensitivity",
+      datapoints: data.map(({ income, price }) => ({ x: income, y: price })),
+    });
 
-  rateChartInstance = renderLineChart(rateCanvasElem, {
-    label: "Annual Rate Sensitivity (Derivative)",
-    labels: annualRateSensitivities.map(
-      (value) => `${(value * 100).toFixed(2)}%`
-    ),
-    datapoints: annualRateDerivatives,
-  });
+    if (rateChartInstance) {
+      rateChartInstance.destroy();
+    }
 
-  if (ratioChartInstance) {
-    ratioChartInstance.destroy();
-  }
+    rateChartInstance = renderScatterPlot(rateCanvasElem, {
+      label: "Rate Sensitivity",
+      datapoints: data.map(({ rate, price }) => ({ x: rate, y: price })),
+    });
 
-  ratioChartInstance = renderLineChart(ratioCanvasElem, {
-    label: "Expense Ratio Sensitivity (Derivative)",
-    labels: ratioSensitivities.map((value) => `${(value * 100).toFixed(2)}%`),
-    datapoints: ratioDerivatives,
-  });
+    if (ratioChartInstance) {
+      ratioChartInstance.destroy();
+    }
+
+    ratioChartInstance = renderScatterPlot(ratioCanvasElem, {
+      label: "Ratio Sensitivity",
+      datapoints: data.map(({ ratio, price }) => ({ x: ratio, y: price })),
+    });
+
+    spinner.style.display = "none";
+    calculateButton.style.display = "block";
+  }, 0);
 }
 
 function calculateHomePrice(income, annualRate, ratio = 0.28) {
@@ -129,6 +128,57 @@ function formatEstimate(estimate) {
   });
 }
 
+function renderScatterPlot(canvasElem, data) {
+  canvasElem.parentNode.style.display = "block";
+  return new Chart(canvasElem, {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: data.label,
+          data: data.datapoints, // Expected to be an array of { x: , y: } objects
+          borderColor: "rgba(255, 215, 0, 1)",
+          pointBackgroundColor: "rgba(255, 215, 0, 1)",
+          fill: false,
+          showLine: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          ticks: {
+            color: "#e8e9eb",
+          },
+          grid: {
+            color: "#555",
+          },
+        },
+        y: {
+          ticks: {
+            color: "#e8e9eb",
+          },
+          grid: {
+            color: "#555",
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: "#e8e9eb",
+          },
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+    },
+  });
+}
+
 function renderLineChart(canvasElem, data) {
   canvasElem.parentNode.style.display = "block";
   return new Chart(canvasElem, {
@@ -137,9 +187,9 @@ function renderLineChart(canvasElem, data) {
       labels: data.labels,
       datasets: [
         {
-          label: data.label,
-          data: data.datapoints,
-          borderColor: "rgba(255, 215, 0, 1)", // using the gold accent color
+          label: data.label, // array of labels
+          data: data.datapoints, // array for y axis
+          borderColor: "rgba(255, 215, 0, 1)",
           pointBackgroundColor: "rgba(255, 215, 0, 1)",
           fill: false,
         },
@@ -192,15 +242,21 @@ function generateSensitivityData(baseValue, variancePercent, steps) {
   return values;
 }
 
-function calculateDerivative(incomeBase, rateBase, ratioBase, variable) {
-  const h = variable === INCOME ? 1 : 0.0001;
-  const income = variable === INCOME ? incomeBase + h : incomeBase;
-  const rate = variable === RATE ? rateBase + h : rateBase;
-  const ratio = variable === RATIO ? ratioBase + h : ratioBase;
+function generateDataSet(
+  incomeSensitivities,
+  rateSensitivities,
+  ratioSensitivities
+) {
+  const dataPoints = [];
 
-  const valueAtBase = calculateHomePrice(incomeBase, rateBase, ratioBase);
+  incomeSensitivities.forEach((income) => {
+    rateSensitivities.forEach((rate) => {
+      ratioSensitivities.forEach((ratio) => {
+        const price = calculateHomePrice(income, rate, ratio);
+        dataPoints.push({ income, rate, ratio, price });
+      });
+    });
+  });
 
-  const valueAtIncrement = calculateHomePrice(income, rate, ratio);
-
-  return (valueAtIncrement - valueAtBase) / h;
+  return dataPoints;
 }
